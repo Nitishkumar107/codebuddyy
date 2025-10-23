@@ -12,9 +12,15 @@ import { signOut } from 'next-auth/react';
 
 const LogoutButton = ({children}:LogoutButtonProps) => {
     const router = useRouter();
-    const onLogout = async()=>{
-        await signOut()
-        router.refresh()
+    const onLogout = async () => {
+        try {
+            await signOut();
+            router.refresh();
+        } catch (error) {
+            alert('Logout failed. Please try again.');
+            // Optionally, you could implement a retry mechanism here.
+            // Or use a toast/notification system if available in your project.
+        }
     }
     return (
         <span className='cursor-pointer' onClick={onLogout}>
