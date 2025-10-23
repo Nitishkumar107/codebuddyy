@@ -1,0 +1,30 @@
+file                             location
+------------------------------------------------------------------------------------------------------------------
+sign_in_page.tsx                D:\vscodedata\codebuddy\app\(auth)\auth\sign-in\sign_in_page.tsx
+layout.tsx                      D:\vscodedata\codebuddy\app\(auth)\auth\layout.tsx
+route.ts                        D:\vscodedata\codebuddy\app\api\auth\[...nextauth]\route.ts
+page.tsx                        D:\vscodedata\codebuddy\app\page.tsx
+index.ts                        D:\vscodedata\codebuddy\features\auth\action\index.ts
+logout-button.tsx               D:\vscodedata\codebuddy\features\auth\components\logout-button.tsx
+sign-in-form-client.tsx         D:\vscodedata\codebuddy\features\auth\components\sign-in-form-client.tsx
+user-button.tsx                 D:\vscodedata\codebuddy\features\auth\components\user-button.tsx
+types.ts                        D:\vscodedata\codebuddy\features\auth\types.ts
+db.ts                           D:\vscodedata\codebuddy\lib\db.ts
+utils.ts                        D:\vscodedata\codebuddy\lib\utils.ts
+auth.config.ts                  D:\vscodedata\codebuddy\auth.config.ts
+auth.ts                         D:\vscodedata\codebuddy\auth.ts
+middleware.ts                   D:\vscodedata\codebuddy\middleware.ts
+next.auth.d.ts                  D:\vscodedata\codebuddy\next.auth.d.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
