@@ -25,6 +25,8 @@ model User {
   name     String?
   email    String    @unique
   image    String?
+  myplayground Playground[]
+  staredPlayground StarMark[]
   accounts Account[]
   role     UserRole  @default(USER)
   createdAt        DateTime     @default(now())
@@ -50,3 +52,49 @@ model Account {
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
+
+enum Template {
+  REACTJS
+  NEXTJS
+  EXPRESS
+  VUE
+  HONO
+  ANGULAR
+  SQL
+  PYTHON
+}
+model Playground {
+  id          String      @id @default(cuid()) @map("_id")
+  title       String
+  description String?
+  template    Template    @default(REACTJS)
+
+  starMarks   StarMark[]
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // todo: add here template files as well
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("playgrounds")
+}
+
+model StarMark {
+  id          String     @id @default(cuid()) @map("_id")
+  userId      String
+  playgroundId String
+  isMarked    Boolean
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  playground  Playground @relation(fields: [playgroundId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, playgroundId])
+  @@map("star_marks")
+
+}
+
+
