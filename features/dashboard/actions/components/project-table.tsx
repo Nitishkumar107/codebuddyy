@@ -43,19 +43,6 @@ export default function ProjectTable({
     const [editData, setEditData] = useState<EditProjectData>({ title: "", description: "" })
     const [isLoading, setIsLoading] = useState(false)
 
-    const handleEditClick = (project: Project) => {
-        setSelectedProject(project)
-        setEditData({
-            title: project.title,
-            description: project.description || "",
-        })
-        setEditDialogOpen(true)
-    }
-
-    const handleDeleteClick = async (project: Project) => {
-        setSelectedProject(project)
-        setDeleteDialogOpen(true)
-    }
 
     const handleUpdateProject = async () => {
         if (!selectedProject || !onUpdateProject) return
@@ -103,18 +90,9 @@ export default function ProjectTable({
         }
     }
 
-    const handleDuplicateProject = async (project: Project) => {
-        if (!onDuplicateProject) return
-        setIsLoading(true)
-        try {
-            await onDuplicateProject(project.id)
-            toast.success("Project duplicated successfully")
-        } catch (error) {
-            toast.error("Failed to duplicate project")
-            console.error("Error duplicating project:", error)
-        } finally {
-            setIsLoading(false)
-        }
+    const handleDeleteClick = async (project: Project) => {
+        setSelectedProject(project)
+        setDeleteDialogOpen(true)
     }
 
     const copyProjectUrl = (projectId: string) => {
@@ -122,6 +100,31 @@ export default function ProjectTable({
         navigator.clipboard.writeText(url)
         toast.success("Project URL copied to clipboard")
     }
+    const handleEditClick = (project: Project) => {
+        setSelectedProject(project)
+        setEditData({
+            title: project.title,
+            description: project.description || "",
+        })
+        setEditDialogOpen(true)
+    }
+    const handleDuplicateProject = async (project:Project)=>{
+        if (!onDuplicateProject) return;
+
+        setIsLoading(true);
+        try{
+            await onDuplicateProject(project.id);
+            toast.success('Project duplicated successfully')
+            }
+        catch (error) {
+            toast.error('failed to duplicated successfully')
+            console.error(error)
+                    }
+        finally{
+            setIsLoading(false)
+        }
+    }
+
 
     return (
         <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-6">
@@ -151,6 +154,7 @@ export default function ProjectTable({
                                             > 
                                                 <span className="text-sm">{project.title}</span> 
                                             </Link> 
+                                            <span className="text-sm text-gray-500 line-clamp-1">{project.description}</span>
                                         </div>
                                     </TableCell>
 
@@ -267,36 +271,37 @@ export default function ProjectTable({
 
             {/* Edit Project Dialog */}
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                <DialogContent className="sm:max-w-[425px] bg-white border border-emerald-200 rounded-xl shadow-xl">
-                    <DialogHeader className="border-b border-emerald-200 pb-4">
-                        <DialogTitle className="text-emerald-800">Edit Project</DialogTitle>
-                        <DialogDescription className="text-emerald-600">
-                            Make changes to your project details here. Click save when you're done.
+                <DialogContent className="sm:max-w-[425px] bg-gray-50 border border-gray-400 rounded-xl shadow-lg">
+                    <DialogHeader className="border-b border-gray-200 pb-4">
+                        <DialogTitle className="text-gray-800">Edit Project</DialogTitle>
+                        <DialogDescription className="text-gray-600">
+                            Make changes to your project details here. Click save Changes when you're done.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="title" className="text-emerald-700">Project Title</Label>
+                            <Label htmlFor="title" className="text-gray-900">Project Title</Label>
                             <Input 
                                 id="title" 
                                 value={editData.title} 
                                 onChange={(e) => setEditData((prev) => ({ ...prev, title: e.target.value }))} 
                                 placeholder="Enter project title" 
-                                className="border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                className="border-gray-800 focus:border-orange-600 focus:ring-orange-600 bg-white text-gray-900 placeholder:text-gray-500 focus:placeholder:text-gray-600"
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="description" className="text-emerald-700">Description</Label>
+                            <Label htmlFor="description" className="text-gray-900">Description</Label>
                             <Textarea 
                                 id="description" 
                                 value={editData.description} 
                                 onChange={(e) => setEditData((prev) => ({ ...prev, description: e.target.value }))} 
                                 placeholder="Enter project description" 
                                 rows={3} 
-                                className="border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900 placeholder:text-gray-500 focus:placeholder:text-gray-600"
                             />
                         </div>
                     </div>
+
 
                     <DialogFooter className="flex gap-3">
                         <Button 
@@ -304,7 +309,7 @@ export default function ProjectTable({
                             variant="outline" 
                             onClick={() => setEditDialogOpen(false)} 
                             disabled={isLoading}
-                            className="border-emerald-300 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200"
+                            className="border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-700 transition-colors duration-200"
                         >
                             Cancel
                         </Button>
@@ -312,7 +317,7 @@ export default function ProjectTable({
                             type="button" 
                             onClick={handleUpdateProject} 
                             disabled={isLoading || !editData.title.trim()}
-                            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white transition-all duration-200 shadow-md hover:shadow-lg"
+                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transition-all duration-200 shadow-md hover:shadow-lg"
                         >
                             {isLoading ? "Saving..." : "Save Changes"}
                         </Button>
@@ -320,20 +325,21 @@ export default function ProjectTable({
                 </DialogContent>
             </Dialog>
 
+
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent className="bg-white border border-emerald-200 rounded-xl shadow-xl">
                     <AlertDialogHeader className="border-b border-emerald-200 pb-4">
                         <AlertDialogTitle className="text-emerald-800">Delete Project</AlertDialogTitle>
                         <AlertDialogDescription className="text-emerald-600">
-                            Are you sure you want to delete "{selectedProject?.title}"? This action cannot be undone. All files and data associated with this project will be permanently removed.
+                            Are you sure you want to delete <span className="font-semibold text-red-400">"{selectedProject?.title}"?</span> This action cannot be undone. All files and data associated with this project will be permanently removed.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
 
                     <AlertDialogFooter className="flex gap-3">
                         <AlertDialogCancel 
                             disabled={isLoading}
-                            className="border-emerald-300 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200"
+                            className="border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-700 transition-colors duration-200"
                         >
                             Cancel
                         </AlertDialogCancel>
