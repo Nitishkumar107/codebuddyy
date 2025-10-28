@@ -58,11 +58,22 @@ enum Template {
   NEXTJS
   EXPRESS
   VUE
-  HONO
   ANGULAR
   SQL
   PYTHON
+  HONO
+  DJANGO
+  FASTAPI
+  GO
+  JAVA
+  RUBY
+  MERN
+  MEVN
+  MEAN
+  PYTHON_FULLSTACK
+  NOSQL
 }
+
 model Playground {
   id          String      @id @default(cuid()) @map("_id")
   title       String

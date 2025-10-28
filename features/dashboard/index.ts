@@ -1,3 +1,5 @@
+// D:\vscodedata\codebuddy\features\dashboard\index.ts
+
 "use server"
 
 import { title } from "process"
@@ -6,34 +8,31 @@ import { db } from "@/lib/db"
 import { Template } from "@prisma/client"
 import { deserialize } from "v8"
 import { Description } from "@radix-ui/react-dialog"
-import { use } from "react"
+
 import { revalidatePath } from "next/cache"
 
 export const createPlayground = async(data:{
     title: string;
     template:Template;
-    description? :string;
-    userId:string
+    description?: string;
 }) => {
-    const {template, title, description}= data;
-
+    const {template, title, description} = data;
     const user = await currentUser();
 
     try {
-        const Playground = await db.playground.create({
+        return await db.playground.create({
             data : {
-                    title,
-                    description: description || "",
-                    template,
-                    userId:user?.id!
-                    }
-                                                            });
-                return Playground;
-        }
-        catch (error) {
-            console.error(error);
-            return null;
-        }
+                title,
+                description: description || "",
+                template,
+                userId: user?.id!
+            }
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return null;
+    }
 }
 
 

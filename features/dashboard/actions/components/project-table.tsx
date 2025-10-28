@@ -22,7 +22,7 @@ interface ProjectTableProps {
     onUpdateProject?: Function
     onDeleteProject?: Function
     onDuplicateProject?: Function
-    onMarkasFavorite?: Function  // ✅ Added this prop
+    onMarkasFavorite?: Function
 }
 
 interface EditProjectData {
@@ -42,7 +42,6 @@ export default function ProjectTable({
     const [selectedProject, setSelectedProject] = useState<Project | null>(null)
     const [editData, setEditData] = useState<EditProjectData>({ title: "", description: "" })
     const [isLoading, setIsLoading] = useState(false)
-    const [favourite, setFavourite] = useState(false)  // ✅ Fixed variable name
 
     const handleEditClick = (project: Project) => {
         setSelectedProject(project)
@@ -75,8 +74,7 @@ export default function ProjectTable({
     }
 
     const handleMarkasFavorite = async (project: Project) => {
-        if (!onMarkasFavorite) return  // ✅ This now refers to the prop
-
+        if (!onMarkasFavorite) return
         setIsLoading(true)
         try {
             await onMarkasFavorite(project.id)
@@ -126,86 +124,136 @@ export default function ProjectTable({
     }
 
     return (
-        <>
-            <div className="border rounded-lg overflow-hidden">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-6">
+            <div className="w-full">
                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Project</TableHead>
-                            <TableHead>Template</TableHead>
-                            <TableHead>Created</TableHead>
-                            <TableHead>User</TableHead>
-                            <TableHead className="w-[50px]">Actions</TableHead>
+                    <TableHeader className="bg-gradient-to-r from-emerald-50 to-teal-50">
+                        <TableRow className="hover:bg-transparent">
+                            <TableHead className="text-emerald-700 font-semibold text-sm tracking-wide">Project</TableHead>
+                            <TableHead className="text-emerald-700 font-semibold text-sm tracking-wide">Template</TableHead>
+                            <TableHead className="text-emerald-700 font-semibold text-sm tracking-wide">Created</TableHead>
+                            <TableHead className="text-emerald-700 font-semibold text-sm tracking-wide">User</TableHead>
+                            <TableHead className="text-emerald-700 font-semibold text-sm tracking-wide w-[50px]">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {
                             projects.map((project) => (
-                                <TableRow key={project.id}>
+                                <TableRow 
+                                    key={project.id} 
+                                    className="hover:bg-emerald-50/50 transition-all duration-200 border-b border-emerald-100/50"
+                                >
                                     <TableCell>
                                         <div className="flex flex-col">
-                                            <Link href={`/playground/${project.id}`} className="hover:underline"> 
-                                                <span className="font-semibold">{project.title}</span> 
+                                            <Link 
+                                                href={`/playground/${project.id}`} 
+                                                className="hover:underline text-emerald-800 hover:text-emerald-900 transition-colors duration-200 font-medium"
+                                            > 
+                                                <span className="text-sm">{project.title}</span> 
                                             </Link> 
                                         </div>
                                     </TableCell>
 
                                     <TableCell>
-                                        <Badge variant='outline' className="bg-[#E93F3F15] text-[#E93F3F] border-[#E93F3F]"> {project.template} </Badge>
+                                        <Badge 
+                                            variant='outline' 
+                                            className="bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200 transition-colors duration-200 px-2 py-1 text-xs"
+                                        > 
+                                            {project.template} 
+                                        </Badge>
                                     </TableCell>
 
-                                    <TableCell>{format(new Date(project.createdAt), "MM dd yyyy")}</TableCell>
+                                    <TableCell className="text-emerald-600 text-sm">
+                                        {format(new Date(project.createdAt), "MMM dd, yyyy")}
+                                    </TableCell>
 
                                     <TableCell>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full overflow-hidden">
-                                                <Image 
-                                                    src={project.user.image || "/placeholder.svg"} 
-                                                    alt={project.user.name} 
-                                                    width={32} 
-                                                    height={32} 
-                                                    className="object-cover" 
-                                                />
+                                            <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-emerald-200 shadow-sm bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                                                {project.user.image ? (
+                                                    <Image 
+                                                        src={project.user.image} 
+                                                        alt={project.user.name} 
+                                                        width={32} 
+                                                        height={32} 
+                                                        className="object-cover"
+                                                    />
+                                                ) : (
+                                                    <span className="text-emerald-600 text-xs font-bold">
+                                                        {project.user.name.charAt(0)}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <span className="text-sm">{project.user.name}</span>
+                                            <span className="text-sm text-emerald-700 font-medium">{project.user.name}</span>
                                         </div>
                                     </TableCell>
 
                                     <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="h-8 w-8 hover:bg-emerald-100 hover:text-emerald-700 transition-colors duration-200 rounded-full"
+                                                >
                                                     <MoreHorizontal className="h-4 w-4"/>
                                                     <span className="sr-only">Open menu</span>
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             
-                                            <DropdownMenuContent align="end" className="w-48">
-                                                {/*<DropdownMenuItem asChild> <MarkedToggleButton markedForRevision = {project.Starmark[0]?.isMarked} id = {project.id} /> </DropdownMenuItem>*/}
-                                                <DropdownMenuItem asChild>
-                                                    <Link href={`/playground/${project.id}`} className="flex items-center">
-                                                        <Eye className="h-4 w-4 mr-2"/>Open Project
+                                            <DropdownMenuContent 
+                                                align="end" 
+                                                className="w-52 bg-white border border-emerald-200 shadow-lg rounded-lg p-1"
+                                            >
+                                                <DropdownMenuItem 
+                                                    asChild
+                                                    className="flex items-center gap-2 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 transition-colors duration-200 px-3 py-2 rounded-md"
+                                                >
+                                                    <Link 
+                                                        href={`/playground/${project.id}`} 
+                                                        className="flex items-center gap-2 w-full"
+                                                    >
+                                                        <Eye className="h-4 w-4"/>Open Project
                                                     </Link>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem asChild>
-                                                    <Link href={`/playground/${project.id}`} target="_blank" className="flex items-center">
-                                                        <ExternalLink className="h-4 w-4 mr-2"/>Open in New Tab
+                                                <DropdownMenuItem 
+                                                    asChild
+                                                    className="flex items-center gap-2 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 transition-colors duration-200 px-3 py-2 rounded-md"
+                                                >
+                                                    <Link 
+                                                        href={`/playground/${project.id}`} 
+                                                        target="_blank" 
+                                                        className="flex items-center gap-2 w-full"
+                                                    >
+                                                        <ExternalLink className="h-4 w-4"/>Open in New Tab
                                                     </Link>
                                                 </DropdownMenuItem>
                                                 
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem onClick={() => handleEditClick(project)}>
-                                                    <Edit3 className="h-4 w-4 mr-2" />Edit Project
+                                                <DropdownMenuSeparator className="bg-emerald-200 my-1" />
+                                                <DropdownMenuItem 
+                                                    onClick={() => handleEditClick(project)}
+                                                    className="flex items-center gap-2 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 transition-colors duration-200 px-3 py-2 rounded-md"
+                                                >
+                                                    <Edit3 className="h-4 w-4"/>Edit Project
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDuplicateProject(project)}>
-                                                    <Copy className="h-4 w-4 mr-2" /> Duplicate
+                                                <DropdownMenuItem 
+                                                    onClick={() => handleDuplicateProject(project)}
+                                                    className="flex items-center gap-2 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 transition-colors duration-200 px-3 py-2 rounded-md"
+                                                >
+                                                    <Copy className="h-4 w-4"/>Duplicate
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => copyProjectUrl(project.id)}>
-                                                    <Download className="h-4 w-4 mr-2" /> Copy URL
+                                                <DropdownMenuItem 
+                                                    onClick={() => copyProjectUrl(project.id)}
+                                                    className="flex items-center gap-2 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 transition-colors duration-200 px-3 py-2 rounded-md"
+                                                >
+                                                    <Download className="h-4 w-4"/>Copy URL
                                                 </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem onClick={() => handleDeleteClick(project)} className="text-destructive focus:text-destructive">
-                                                    <Trash2 className="h-4 w-4 mr-2" /> Delete Project
+                                                <DropdownMenuSeparator className="bg-emerald-200 my-1" />
+                                                <DropdownMenuItem 
+                                                    onClick={() => handleDeleteClick(project)} 
+                                                    className="flex items-center gap-2 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 px-3 py-2 rounded-md"
+                                                >
+                                                    <Trash2 className="h-4 w-4"/>Delete Project
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -219,41 +267,44 @@ export default function ProjectTable({
 
             {/* Edit Project Dialog */}
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Edit Project</DialogTitle>
-                        <DialogDescription>
+                <DialogContent className="sm:max-w-[425px] bg-white border border-emerald-200 rounded-xl shadow-xl">
+                    <DialogHeader className="border-b border-emerald-200 pb-4">
+                        <DialogTitle className="text-emerald-800">Edit Project</DialogTitle>
+                        <DialogDescription className="text-emerald-600">
                             Make changes to your project details here. Click save when you're done.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="title">Project Title</Label>
+                            <Label htmlFor="title" className="text-emerald-700">Project Title</Label>
                             <Input 
                                 id="title" 
                                 value={editData.title} 
                                 onChange={(e) => setEditData((prev) => ({ ...prev, title: e.target.value }))} 
                                 placeholder="Enter project title" 
+                                className="border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500"
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="description">Description</Label>
+                            <Label htmlFor="description" className="text-emerald-700">Description</Label>
                             <Textarea 
                                 id="description" 
                                 value={editData.description} 
                                 onChange={(e) => setEditData((prev) => ({ ...prev, description: e.target.value }))} 
                                 placeholder="Enter project description" 
                                 rows={3} 
+                                className="border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500"
                             />
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="flex gap-3">
                         <Button 
                             type="button" 
                             variant="outline" 
                             onClick={() => setEditDialogOpen(false)} 
                             disabled={isLoading}
+                            className="border-emerald-300 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200"
                         >
                             Cancel
                         </Button>
@@ -261,6 +312,7 @@ export default function ProjectTable({
                             type="button" 
                             onClick={handleUpdateProject} 
                             disabled={isLoading || !editData.title.trim()}
+                            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white transition-all duration-200 shadow-md hover:shadow-lg"
                         >
                             {isLoading ? "Saving..." : "Save Changes"}
                         </Button>
@@ -270,26 +322,31 @@ export default function ProjectTable({
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                        <AlertDialogDescription>
+                <AlertDialogContent className="bg-white border border-emerald-200 rounded-xl shadow-xl">
+                    <AlertDialogHeader className="border-b border-emerald-200 pb-4">
+                        <AlertDialogTitle className="text-emerald-800">Delete Project</AlertDialogTitle>
+                        <AlertDialogDescription className="text-emerald-600">
                             Are you sure you want to delete "{selectedProject?.title}"? This action cannot be undone. All files and data associated with this project will be permanently removed.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
 
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+                    <AlertDialogFooter className="flex gap-3">
+                        <AlertDialogCancel 
+                            disabled={isLoading}
+                            className="border-emerald-300 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200"
+                        >
+                            Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction 
                             onClick={handleDeleteProject} 
                             disabled={isLoading} 
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white transition-all duration-200 shadow-md hover:shadow-lg"
                         >
                             {isLoading ? "Deleting..." : "Delete Project"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </>
+        </div>
     )
 }
