@@ -14,13 +14,19 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
         VUE: Braces,         // Curly braces for Vue
         HONO: Flame,         // Speed and fire
         ANGULAR: Box,        // Framework container
-        SQL: Database,       // Database operations
-        PYTHON: Terminal     // Terminal/Command line
-        };
+        SHADCN: FileCode,    // Code file
+        GRAPHQL: Database,   // Database operations
+        SVELTE: Braces,      // Curly braces for Svelte
+        JsonGraphqlServer: Terminal, // Terminal for JSON/GraphQL
+        JavaScript: Code,    // Code icon
+        WebPlatform: Server, // Server for web platform
+        // Note: NEXT is not in your templatePaths, so it's removed
+    };
+    
     const formatedPlaygroundData = playgroundData?.map((playground) => ({
         id: playground.id,
         name: playground.title,
-        starred: technologyIconMap[playground.template] || 'code2'
+        starred: technologyIconMap[playground.template] || Code // fallback to Code icon
     })) || [];
 
     return(

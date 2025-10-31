@@ -18,7 +18,7 @@ type TemplateSelectionModelProps = {
     onClose: () => void;
     onSubmit: (data: {
         title: string;
-        template: "REACTJS" | "NEXTJS" | "EXPRESS" | "VUE" | "ANGULAR" | "SQL" | "PYTHON" | "HONO" | "DJANGO" | "FASTAPI" | "GO" | "JAVA" | "RUBY" | "MERN" | "MEVN" | "MEAN" | "PYTHON_FULLSTACK" | "NOSQL";
+        template: "REACTJS" | "NEXTJS" | "EXPRESS" | "VUE" | "ANGULAR" | "SHADCN" | "GRAPHQL" | "HONO" | "NEXT" | "SVELTE" | "JsonGraphqlServer" | "JavaScript" | "WebPlatform";
         description?: string
     }) => void;
 }
@@ -81,7 +81,7 @@ const templates: Template[] = [
     // Frontend Templates
     {
         id: "1",
-        name: "REACTJS",  // Removed trailing space
+        name: "REACTJS",
         description: "Modern React application with TypeScript",
         icon: "⚛️",
         color: "#E3F2FD",
@@ -92,7 +92,7 @@ const templates: Template[] = [
     },
     {
         id: "2",
-        name: "NEXTJS",   // Removed trailing space
+        name: "NEXTJS",
         description: "Complete Next.js application with API routes",
         icon: "🚀",
         color: "#F5F5F5",
@@ -103,7 +103,7 @@ const templates: Template[] = [
     },
     {
         id: "3",
-        name: "VUE",      // Removed trailing space
+        name: "VUE",
         description: "Vue.js application with TypeScript and Vite",
         icon: "💚",
         color: "#E8F5E9",
@@ -114,7 +114,7 @@ const templates: Template[] = [
     },
     {
         id: "4",
-        name: "ANGULAR",  // Removed trailing space
+        name: "ANGULAR",
         description: "Angular application with TypeScript",
         icon: "🅰️",
         color: "#FFEBEE",
@@ -125,165 +125,95 @@ const templates: Template[] = [
     },
     {
         id: "5",
-        name: "SvelteKit Starter",  // This doesn't match your enum - keep as is for now
-        description: "SvelteKit application with TypeScript",
-        icon: "⚡",
-        color: "#FFF3E0",
+        name: "SHADCN",
+        description: "Shadcn UI components with React",
+        icon: "🎨",
+        color: "#F3E5F5",
         popularity: 4.5,
-        tags: ["Svelte", "TypeScript", "Vite"],
-        features: "TypeScript, Vite, SSR",
+        tags: ["React", "UI", "Components"],
+        features: "UI Components, Tailwind CSS, TypeScript",
         category: "frontend"
     },
-
-    // Backend Templates
     {
         id: "6",
-        name: "EXPRESS",  // Removed trailing space
-        description: "Backend API with Express and MongoDB",
-        icon: "🟢",
-        color: "#E8F5E8",
-        popularity: 4.7,
-        tags: ["Node.js", "Express", "MongoDB"],
-        features: "REST API, Authentication",
+        name: "GRAPHQL",
+        description: "GraphQL API with Node.js and Apollo",
+        icon: "📡",
+        color: "#E0F2F1",
+        popularity: 4.4,
+        tags: ["GraphQL", "API", "Node.js"],
+        features: "GraphQL Schema, Resolvers, Queries",
         category: "backend"
     },
     {
         id: "7",
-        name: "PYTHON",   // Removed trailing space
-        description: "Python Flask web application with SQLAlchemy",
-        icon: "🐍",
-        color: "#E3F2FD",
-        popularity: 4.6,
-        tags: ["Python", "Flask", "SQLAlchemy"],
-        features: "REST API, Database ORM, Authentication",
+        name: "HONO",
+        description: "Hono web framework with TypeScript",
+        icon: "⚡",
+        color: "#FFF3E0",
+        popularity: 4.3,
+        tags: ["Hono", "Web Framework", "TypeScript"],
+        features: "Fast HTTP Server, Middleware, Routing",
         category: "backend"
     },
     {
         id: "8",
-        name: "DJANGO",   // This doesn't match your enum - you have "PYTHON" but should have "DJANGO"
-        description: "Django web application with admin panel",
-        icon: "🎯",
-        color: "#E8F5E8",
-        popularity: 4.8,
-        tags: ["Python", "Django", "PostgreSQL"],
-        features: "Admin Panel, ORM, Authentication",
-        category: "backend"
+        name: "NEXT",
+        description: "Next.js framework with TypeScript",
+        icon: "🚀",
+        color: "#F5F5F5",
+        popularity: 4.6,
+        tags: ["Next.js", "React", "SSG"],
+        features: "Server Side Rendering, Static Site Generation",
+        category: "fullstack"
     },
     {
         id: "9",
-        name: "FASTAPI",  // This doesn't match your enum - you have "PYTHON" but should have "FASTAPI"
-        description: "FastAPI backend with async support",
+        name: "SVELTE",
+        description: "Svelte framework with TypeScript",
         icon: "⚡",
-        color: "#E0F2F1",
-        popularity: 4.9,
-        tags: ["Python", "FastAPI", "Async"],
-        features: "Async, OpenAPI, Pydantic",
-        category: "backend"
+        color: "#FFE0B2",
+        popularity: 4.2,
+        tags: ["Svelte", "Framework", "TypeScript"],
+        features: "Component Based, Reactive, Lightweight",
+        category: "frontend"
     },
     {
         id: "10",
-        name: "GO",       // This doesn't match your enum - you have "HONO" but should have "GO"
-        description: "Go web application with Gin framework",
-        icon: "🐹",
-        color: "#E1F5FE",
-        popularity: 4.5,
-        tags: ["Go", "Gin", "REST"],
-        features: "REST API, Middleware, JSON",
+        name: "JsonGraphqlServer",
+        description: "JSON GraphQL server with Node.js",
+        icon: "📊",
+        color: "#E8F5E9",
+        popularity: 4.1,
+        tags: ["GraphQL", "JSON", "Server"],
+        features: "JSON Schema, GraphQL Queries, REST API",
         category: "backend"
     },
     {
         id: "11",
-        name: "JAVA",     // This doesn't match your enum - you have "HONO" but should have "JAVA"
-        description: "Spring Boot application with JPA",
-        icon: "☕",
-        color: "#F3E5F5",
+        name: "JavaScript",
+        description: "JavaScript application with modern features",
+        icon: "📜",
+        color: "#FFECB3",
         popularity: 4.7,
-        tags: ["Java", "Spring", "JPA"],
-        features: "REST API, Security, Database",
-        category: "backend"
+        tags: ["JavaScript", "ES6", "Modern"],
+        features: "ES6 Features, Async/Await, Modules",
+        category: "frontend"
     },
     {
         id: "12",
-        name: "RUBY",     // This doesn't match your enum - you have "HONO" but should have "RUBY"
-        description: "Ruby on Rails web application",
-        icon: "💎",
-        color: "#FFEBEE",
-        popularity: 4.4,
-        tags: ["Ruby", "Rails", "PostgreSQL"],
-        features: "MVC, ORM, Authentication",
-        category: "backend"
-    },
-
-    // Fullstack Templates
-    {
-        id: "13",
-        name: "MERN",     // This doesn't match your enum - you have "REACTJS" but should have "MERN"
-        description: "MongoDB, Express, React, Node.js stack",
+        name: "WebPlatform",
+        description: "Web platform with modern web technologies",
         icon: "🌐",
-        color: "#E8F5E8",
-        popularity: 4.8,
-        tags: ["MongoDB", "Express", "React", "Node.js"],
-        features: "Fullstack, REST API, Authentication",
-        category: "fullstack"
-    },
-    {
-        id: "14",
-        name: "MEVN",     // This doesn't match your enum - you have "VUE" but should have "MEVN"
-        description: "MongoDB, Express, Vue.js, Node.js stack",
-        icon: "💚",
-        color: "#E8F5E9",
-        popularity: 4.6,
-        tags: ["MongoDB", "Express", "Vue.js", "Node.js"],
-        features: "Fullstack, REST API, Authentication",
-        category: "fullstack"
-    },
-    {
-        id: "15",
-        name: "MEAN",     // This doesn't match your enum - you have "ANGULAR" but should have "MEAN"
-        description: "MongoDB, Express, Angular, Node.js stack",
-        icon: "🅰️",
-        color: "#FFEBEE",
+        color: "#E3F2FD",
         popularity: 4.5,
-        tags: ["MongoDB", "Express", "Angular", "Node.js"],
-        features: "Fullstack, REST API, Authentication",
+        tags: ["Web", "Platform", "Modern"],
+        features: "Web Standards, Progressive Web App, Responsive",
         category: "fullstack"
-    },
-    {
-        id: "16",
-        name: "PYTHON_FULLSTACK",  // This doesn't match your enum
-        description: "Python backend with React frontend",
-        icon: "🐍",
-        color: "#E3F2FD",
-        popularity: 4.4,
-        tags: ["Python", "React", "Django"],
-        features: "Fullstack, REST API, Authentication",
-        category: "fullstack"
-    },
-
-    // Database Templates
-    {
-        id: "17",
-        name: "SQL",      // Removed trailing space
-        description: "SQL database with PostgreSQL",
-        icon: "🗄️",
-        color: "#E3F2FD",
-        popularity: 4.3,
-        tags: ["SQL", "PostgreSQL", "Database"],
-        features: "Database Schema, Queries, Transactions",
-        category: "backend"
-    },
-    {
-        id: "18",
-        name: "NOSQL",    // This doesn't match your enum - you have "SQL" but should have "NOSQL"
-        description: "MongoDB database with Mongoose",
-        icon: "🍃",
-        color: "#E8F5E8",
-        popularity: 4.2,
-        tags: ["MongoDB", "NoSQL", "Database"],
-        features: "Document Storage, Queries, Aggregation",
-        category: "backend"
     }
 ];
+
+
 
     // Filter templates based on search and category
     const filteredTemplates = templates.filter((template) => {
@@ -318,43 +248,40 @@ const templates: Template[] = [
     };
 
     const handles = ()=> {
-        if (selectedTemplate) {
-            const templateMap:Record<
-            string,//Template 
-            "REACTJS" | "NEXTJS" | "EXPRESS" | "VUE" | "ANGULAR" | "SQL" | "PYTHON" | "HONO" | "DJANGO" | "FASTAPI" | "GO" | "JAVA" | "RUBY" | "MERN" | "MEVN" | "MEAN" | "PYTHON_FULLSTACK" | "NOSQL"
-                                > = {
-                react:"REACTJS", 
-                next:"NEXTJS", 
-                express:"EXPRESS",
-                hono:"HONO", 
-                vue:"VUE", 
-                angular:"ANGULAR", 
-                python:"PYTHON", 
-                sql:"SQL", 
-                django:"DJANGO", 
-                fastapi:"FASTAPI", 
-                go:"GO", 
-                java:"JAVA", 
-                ruby:"RUBY", 
-                mern:"MERN", 
-                mevn:"MEVN", 
-                mean:"MEAN", 
-                python_fullstack:"PYTHON_FULLSTACK", 
-                nosql:"NOSQL"
-            };
-            const template =templates.find((t)=>t.id === selectedTemplate);
-            onSubmit({
-                title: projectName || `New ${template?.name} Project`,
-                template:templateMap[selectedTemplate] || "REACTJS",
-                description: template?.description
-            })
-        }
-        onClose();
-        // Reset state for next time
-        setStep("select");
-        setSelectedTemplate(null);
-        setProjectName("")
+    if (selectedTemplate) {
+        const templateMap: Record<
+            string, // Template 
+            "REACTJS" | "NEXTJS" | "EXPRESS" | "VUE" | "ANGULAR" | "SHADCN" | "GRAPHQL" | "HONO" | "NEXT" | "SVELTE" | "JsonGraphqlServer" | "JavaScript" | "WebPlatform"
+        > = {
+            react: "REACTJS", 
+            next: "NEXTJS", 
+            express: "EXPRESS",
+            hono: "HONO", 
+            vue: "VUE", 
+            angular: "ANGULAR", 
+            shadcn: "SHADCN", 
+            graphql: "GRAPHQL", 
+            nextjs: "NEXT", 
+            svelte: "SVELTE", 
+            jsongraphqlserver: "JsonGraphqlServer", 
+            javascript: "JavaScript", 
+            webplatform: "WebPlatform"
+        };
+        
+        const template = templateMap[selectedTemplate];
+        onSubmit({
+            title: projectName || `New ${template} Project`,
+            template: template || "REACTJS",
+            description: "" // You'll need to define descriptions for your templates
+        })
     }
+    onClose();
+    // Reset state for next time
+    setStep("select");
+    setSelectedTemplate(null);
+    setProjectName("")
+}
+
 
     const getSelectedTemplate = () => {
         return templates.find(template => template.id === selectedTemplate);
