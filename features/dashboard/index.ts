@@ -1,103 +1,102 @@
-// D:\vscodedata\codebuddy\features\dashboard\index.ts
+// features/dashboard/index.ts
 
 "use server"
 
-import { title } from "process"
 import { currentUser } from "../auth/action"
 import { db } from "@/lib/db"
 import { Template } from "@prisma/client"
-import { deserialize } from "v8"
-import { Description } from "@radix-ui/react-dialog"
-
 import { revalidatePath } from "next/cache"
 
-export const createPlayground = async(data:{
-    title: string;
-    template:Template;
-    description?: string;
-}) => {
-    const {template, title, description} = data;
+export const createPlayground = async (templateKey: string, title: string, description?: string) => {
     const user = await currentUser();
+    
+    if (!user || !user.id) {
+        throw new Error('User not authenticated');
+    }
+
+    // Validate template key against schema
+    const validTemplates: Template[] = [
+        'REACTJS', 'NEXTJS', 'EXPRESS', 'VUE', 'ANGULAR', 'SHADCN',
+        'GRAPHQL', 'HONO', 'NEXT', 'SVELTE', 'JsonGraphqlServer',
+        'JavaScript', 'WebPlatform'
+    ];
+
+    if (!validTemplates.includes(templateKey as Template)) {
+        throw new Error(`Invalid template key: ${templateKey}`);
+    }
 
     try {
-        return await db.playground.create({
-            data : {
+        const playground = await db.playground.create({
+            data: {
                 title,
-                description: description || "",
-                template,
-                userId: user?.id!
+                template: templateKey as Template,
+                userId: user.id as string,
+                description: description || '',
             }
         });
+        
+        return playground;
+    } catch (error) {
+        console.error('Error creating playground:', error);
+        throw error;
     }
-    catch (error) {
-        console.error(error);
-        return null;
-    }
-}
+};
 
 
-export const getAllPlaygroundForUser = async() =>{
+const getAllPlaygroundForUser = async () => {
     const user = await currentUser();
-
-    try{
-        const playground = await db.playground.findMany({
-            where:{
-                userId:user?.id
+    try {
+        const playgrounds = await db.playground.findMany({
+            where: {
+                userId: user?.id
             },
-            include:
-            {
-                user:true,
-                starMarks:{
-                    where:{
-                        userId:user?.id
-                    },
-                    select:{
-                        isMarked:true
-                    }
-                }
+            include: {
+                user: true
             }
-        })
-        return playground
-    }catch (error){
-        console.error(error)
-            return null
+        });
+        return playgrounds;
+    } catch (error) {
+        console.error('Error fetching playgrounds:', error);
+        return [];
     }
-}
+};
 
-export const deleteProjectById = async (id:string)=>{
-    try{
+
+export const deleteProjectById = async (id: string) => {
+    try {
         await db.playground.delete({
-            where:{id}
+            where: { id }
         })
         revalidatePath("/dashboard");
-        }
-    catch(error){
+    } catch (error) {
         console.error(error)
+        throw error;
     }
 }
 
 
-export const editProjectById = async(id:string,data:{title:string, description:string})=>{
-    try{
+export const editProjectById = async (id: string, data: { title: string, description: string }) => {
+    try {
         await db.playground.update({
-            where:{id},
-            data:data
-                })
-        }
-    catch (error){
-                console.error(error)
-                }
+            where: { id },
+            data: data
+        })
+        revalidatePath("/dashboard");
+    } catch (error) {
+        console.error(error)
+        throw error;
+    }
 }
 
 
-export const duplicateProjectById = async(id: string) => {
+export const duplicateProjectById = async (id: string) => {
     try {
         const originalPlayground = await db.playground.findUnique({
             where: { id },
         });
         
         if (!originalPlayground) {
-            throw new Error("playground not found");
+            throw new Error("Playground not found");
         }
         
         const duplicatePlayground = await db.playground.create({
@@ -106,18 +105,15 @@ export const duplicateProjectById = async(id: string) => {
                 description: originalPlayground.description,
                 template: originalPlayground.template,
                 userId: originalPlayground.userId,
-                // Add other fields that need to be duplicated
             }
         });
         revalidatePath("/dashboard");
         return duplicatePlayground;
     } catch (error) {
         console.error("Error duplicating project:", error);
-        throw error; // Re-throw the error so caller can handle it
+        throw error;
     }
 };
 
-
-
-
-
+// Export the getAllPlaygroundForUser function as well if needed
+export { getAllPlaygroundForUser };

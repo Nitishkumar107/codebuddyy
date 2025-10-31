@@ -1,5 +1,4 @@
-// D:\vscodedata\codebuddy\features\dashboard\actions\components\add-new-button.tsx
-
+// D:\vscodedata\codebuddy/features/dashboard/actions/components/add-new-button.tsx
 
 "use client";
 
@@ -16,7 +15,7 @@ import { Template } from '@prisma/client';
 const AddNewButton = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<{
-        title: string; // Fix: String -> string
+        title: string;
         template: Template;
         description?: string
     } | null>(null);
@@ -25,11 +24,11 @@ const AddNewButton = () => {
 
     const handleSubmit = async (data: {
         title: string;
-        template: Template; //"REACTJS" | "NEXTJS" | "EXPRESS" | "VUE" |"HONO" | "ANGULAR" | "PYTHON" | "SQL";
+        template: Template; // This will now only accept valid template names
         description?: string;
     }) => {
         setSelectedTemplate(data);
-        const res = await createPlayground(data);
+        const res = await createPlayground(data.template, data.title);
         toast.success('Playground created successfully');
         setIsModalOpen(false);
         if (res?.id) {

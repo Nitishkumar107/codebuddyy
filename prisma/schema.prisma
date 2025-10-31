@@ -59,19 +59,14 @@ enum Template {
   EXPRESS
   VUE
   ANGULAR
-  SQL
-  PYTHON
+  SHADCN
+  GRAPHQL
   HONO
-  DJANGO
-  FASTAPI
-  GO
-  JAVA
-  RUBY
-  MERN
-  MEVN
-  MEAN
-  PYTHON_FULLSTACK
-  NOSQL
+  NEXT
+  SVELTE
+  JsonGraphqlServer
+  JavaScript
+  WebPlatform
 }
 
 model Playground {
@@ -79,19 +74,26 @@ model Playground {
   title       String
   description String?
   template    Template    @default(REACTJS)
-
   starMarks   StarMark[]
   userId      String
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // todo: add here template files as well
+  templateFiles TemplateFile[]
 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-
   @@map("playgrounds")
 }
+model  TemplateFile{
+  id String @id @default(cuid()) @map("_id")
+  content Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  playgroundId String @unique
+  playground Playground @relation(fields: [playgroundId], references: [id], onDelete: Cascade)
 
+}
 model StarMark {
   id          String     @id @default(cuid()) @map("_id")
   userId      String
