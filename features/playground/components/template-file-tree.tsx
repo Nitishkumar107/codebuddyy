@@ -53,6 +53,7 @@ import {
     import NewFileDialog from "./dialogs/new-file-dialog"
     import RenameFileDialog from "./dialogs/rename-file-dialog"
     import  DeleteDialog  from "./dialogs/delete-dialog"
+    
 
     // Using the provided interfaces
     interface TemplateFile {
@@ -212,18 +213,18 @@ import {
     }
 
     interface TemplateNodeProps {
-    item: TemplateItem
-    onFileSelect?: (file: TemplateFile) => void
-    selectedFile?: TemplateFile
-    level: number
-    path?: string
-    onAddFile?: (file: TemplateFile, parentPath: string) => void
-    onAddFolder?: (folder: TemplateFolder, parentPath: string) => void
-    onDeleteFile?: (file: TemplateFile, parentPath: string) => void
-    onDeleteFolder?: (folder: TemplateFolder, parentPath: string) => void
-    onRenameFile?: (file: TemplateFile, newFilename: string, newExtension: string, parentPath: string) => void
-    onRenameFolder?: (folder: TemplateFolder, newFolderName: string, parentPath: string) => void
-    }
+            item: TemplateItem
+            onFileSelect?: (file: TemplateFile) => void
+            selectedFile?: TemplateFile
+            level: number
+            path?: string
+            onAddFile?: (file: TemplateFile, parentPath: string) => void
+            onAddFolder?: (folder: TemplateFolder, parentPath: string) => void
+            onDeleteFile?: (file: TemplateFile, parentPath: string) => void
+            onDeleteFolder?: (folder: TemplateFolder, parentPath: string) => void
+            onRenameFile?: (file: TemplateFile, newFilename: string, newExtension: string, parentPath: string) => void
+            onRenameFolder?: (folder: TemplateFolder, newFolderName: string, parentPath: string) => void
+            }
 
     function TemplateNode({
     item,

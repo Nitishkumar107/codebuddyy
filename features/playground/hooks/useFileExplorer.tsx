@@ -87,6 +87,8 @@ interface FileExplorerState {
     setActiveFileId: (fileId) => set({ activeFileId: fileId }),
 
     openFile: (file) => {
+        console.log("FILE", file, "TemplateData", get().templateData);
+        if (!get().templateData) return;
         const fileId = generateFileId(file, get().templateData!);
         const { openFiles } = get();
         const existingFile = openFiles.find((f) => f.id === fileId);
