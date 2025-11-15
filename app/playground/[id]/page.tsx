@@ -17,20 +17,20 @@ import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,} from "@/compo
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup,} from "@/components/ui/resizable";
 import WebContainerPreview from "@/features/webContainers/components/webcontainer-preview";
 import LoadingStep from "@/components/ui/loader";
-import { PlaygroundEditor } from "@/features/playground/components/playground-editor";
-//import ToggleAI from "@/features/playground/components/toggle-ai";
+import {PlaygroundEditor} from "@/features/playground/components/playground-editor";
+
 import { useFileExplorer } from "@/features/playground/hooks/useFileExplorer";
 import  UsePlayground  from "@/features/playground/hooks/usePlayground";
-//import { useAISuggestions } from "@/features/playground/hooks/useAISuggestion";
+import { useAISuggestions } from "@/features/ai/components/hooks/useAISuggestion";
 // In your page.tsx
 import { useWebContainer } from "@/features/webContainers/hooks/useWebContainer";
 import { SaveUpdatedCode } from "@/features/playground/actions";
 import { TemplateFolder } from "@/features/playground/types";
 import { findFilePath } from "@/features/playground/lib/index";
 import { ConfirmationDialog } from "@/features/playground/components/dialogs/conformation-dialog";
+import ToggleAI from "@/features/playground/components/toggle-ai";
 
-
-const Page = () =>{
+    const MainPlaygroundPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
 
     // UI state
@@ -47,7 +47,7 @@ const Page = () =>{
     // Custom hooks
     const { playgroundData, templateData, isLoading, error, saveTemplateData } =
         UsePlayground(id);
-    //const aiSuggestions = useAISuggestions();
+    const aiSuggestions = useAISuggestions();
     const {
         activeFileId,
         closeAllFiles,
@@ -74,8 +74,8 @@ const Page = () =>{
         error: containerError,
         instance,
         writeFileSync,
-        //@ts-ignore
-} = useWebContainer({ templateData });
+        // @ts-ignore
+    } = useWebContainer({ templateData });
 
     const lastSyncedContent = useRef<Map<string, string>>(new Map());
 
@@ -189,7 +189,6 @@ const Page = () =>{
             const updatedTemplateData = JSON.parse(
             JSON.stringify(latestTemplateData)
             );
-            {/* 
             const updateFileContent = (items: any[]) =>
             items.map((item) => {
                 if ("folderName" in item) {
@@ -218,7 +217,7 @@ const Page = () =>{
             // Use saveTemplateData to persist changes
             const newTemplateData = await saveTemplateData(updatedTemplateData);
             setTemplateData(newTemplateData || updatedTemplateData);
-*/}
+
             // Update open files
             const updatedOpenFiles = openFiles.map((f) =>
             f.id === targetFileId
@@ -246,8 +245,8 @@ const Page = () =>{
         [
         activeFileId,
         openFiles,
-        //writeFileSync,
-        //instance,
+        writeFileSync,
+        instance,
         saveTemplateData,
         setTemplateData,
         setOpenFiles,
@@ -300,7 +299,7 @@ const Page = () =>{
 
     // Loading state
     if (isLoading) {
-    return (
+        return (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4">
             <div className="w-full max-w-md p-6 rounded-lg shadow-sm border">
             <h2 className="text-xl font-semibold mb-6 text-center">
@@ -323,6 +322,7 @@ const Page = () =>{
         </div>
         );
     }
+
     // No template data
     if (!templateData) {
         return (
@@ -346,8 +346,8 @@ const Page = () =>{
             onFileSelect={handleFileSelect}
             selectedFile={activeFile}
             title="File Explorer"
-            //onAddFile={wrappedHandleAddFile}
-            //onAddFolder={wrappedHandleAddFolder}
+            onAddFile={wrappedHandleAddFile}
+            onAddFolder={wrappedHandleAddFolder}
             onDeleteFile={wrappedHandleDeleteFile}
             onDeleteFolder={wrappedHandleDeleteFolder}
             onRenameFile={wrappedHandleRenameFile}
@@ -393,18 +393,18 @@ const Page = () =>{
                         onClick={handleSaveAll}
                         disabled={!hasUnsavedChanges}
                         >
-                        <Save className="h-4 w-4" /> All
+                        <Save className="h-4 w-4" />Save All
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>Save All (Ctrl+Shift+S)</TooltipContent>
                     </Tooltip>
-{/**    
+
                     <ToggleAI
                     isEnabled={aiSuggestions.isEnabled}
                     onToggle={aiSuggestions.toggleEnabled}
                     suggestionLoading={aiSuggestions.isLoading}
                     />
-*/}
+
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button size="sm" variant="outline">
@@ -487,13 +487,12 @@ const Page = () =>{
                         className="h-full"
                     >
                         <ResizablePanel defaultSize={isPreviewVisible ? 50 : 100}>
-{/** 
                         <PlaygroundEditor
                             activeFile={activeFile}
                             content={activeFile?.content || ""}
                             onContentChange={(value) =>
                             activeFileId && updateFileContent(activeFileId, value)
-                            } 
+                            }
                             suggestion={aiSuggestions.suggestion}
                             suggestionLoading={aiSuggestions.isLoading}
                             suggestionPosition={aiSuggestions.position}
@@ -506,15 +505,14 @@ const Page = () =>{
                             onTriggerSuggestion={(type, editor) =>
                             aiSuggestions.fetchSuggestion(type, editor)
                             }
-                        /> 
-*/}
+                        />
                         </ResizablePanel>
 
                         {isPreviewVisible && (
                         <>
                             <ResizableHandle />
                             <ResizablePanel defaultSize={50}>
-                                <WebContainerPreview
+                            <WebContainerPreview
                                 templateData={templateData}
                                 instance={instance}
                                 writeFileSync={writeFileSync}
@@ -522,7 +520,7 @@ const Page = () =>{
                                 error={containerError}
                                 serverUrl={serverUrl!}
                                 forceResetup={false}
-                                /> 
+                            />
                             </ResizablePanel>
                         </>
                         )}
@@ -555,4 +553,7 @@ const Page = () =>{
         </TooltipProvider>
     );
 };
-export default Page;
+
+export default MainPlaygroundPage;
+
+

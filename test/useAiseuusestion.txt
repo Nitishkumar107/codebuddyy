@@ -1,0 +1,106 @@
+// D:\vscodedata\codebuddy\features\ai\components\hooks\useAISuggestion.tsx
+
+import { currentUser } from "@/features/auth/action";
+import { editor, Position } from "monaco-editor";
+import { useState, useCallback } from "react";
+import { positive } from "zod";
+
+
+
+interface AISuggestionState{
+    suggestion: string | null;
+    isLoading: boolean;
+    position: {line:number; column: number} | null;
+    decoration: string[];
+    isEnabled: boolean;
+}
+
+interface UseAISuggestionsReturn extends AISuggestionState{
+    toggleEnabled:()=> void;
+    fetchSuggestion:(type:string, editor:any)=> Promise<void>;
+    acceptSuggestion:(editor:any, monaco:any)=> void;
+    rejectSuggestion:(editor:any)=>any;
+    clearSuggestion:(editor:any)=>void;
+}
+export const useAISuggestions = (): UseAISuggestionsReturn => {
+    const [state, setState] = useState<AISuggestionState>({ // Fixed typo
+        suggestion: null,
+        isLoading: false,
+        position: null, // Fixed capitalization
+        decoration: [],
+        isEnabled: true
+    });
+
+    const togglesEnabled = useCallback (()=>{
+        setState((prev)=> ({...prev, isEnabled: !prev.isEnabled}));
+    },[]);
+
+    const fetchSuggestion = useCallback (async(type:string, editor:any)=>{
+        setStete(currentState)=> {
+            if(!currentState) => {
+                if(!currentState.isEnabled){
+                    console.warn("Ai suggestions are disabled")
+                    return currentUser;
+                }
+                if(!editor){
+                    console.warn("Editor instance is not available")
+                    return currentState;
+                }
+                const model = editor.getModel();
+                const cursorPosition = editor.getPosition();
+
+            if (!model || !cursorPosition) {
+                console.warn("Editor model or cursor position is not available.")
+                return currentState;
+                    }
+            const newState = {...currentState , isloading: true}
+            // perform the async operation
+            (
+                async ()=> {
+                    try {
+                        const payload = {
+                            fileContent : model.getValue()
+                            cursorLine: cursorPosition.lineNumber -1,
+                            cursorColumn: cursorPosition.column -1,
+                            suggestionType: type
+                        }
+                        const response = await fetch("/api/code-suggestion ", {
+                            method : "POST",
+                            headers: {"Content-Type":"application/json"},
+                            body:JSON.stringify(payload)
+                        })
+                        if(!response.ok){
+                            throw new Error (`API respondrd with starus ${response.statue}`)
+                        }
+                        const data = await response.json();
+
+                        if(data.suggestion){
+                            const suggestTest = data.suddestion.trim();
+                            setState((prev)=>({
+                                ...prev,
+                                suggestion:suggestionText,
+                                position:{
+                                    line:cursorPosition.lineNumber,
+                                    column:cursorPosition.column
+                                },
+                                isLoading:false
+                            }))
+                        } 
+                        else{
+                            console.warn("No suggeston received trom API.");
+                            setState((prev)=> ({...prev, isLoading: false}));
+                        }
+                    }
+                    catch(error) {
+                        console.error("Error fetching code suggestion:", error);
+                    setState((prev)=> ({...prev, isLoading: false}));
+
+                    }
+                }
+            )();
+            return newState;
+            }
+                    }
+                }
+    },[])
+}
