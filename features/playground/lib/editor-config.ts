@@ -1,4 +1,5 @@
 import type { Monaco } from "@monaco-editor/react";
+import type { editor as MonacoEditor } from 'monaco-editor';
 
 export const getEditorLanguage = (fileExtension: string): string => {
     const extension = fileExtension.toLowerCase();
@@ -280,7 +281,7 @@ export const getEditorLanguage = (fileExtension: string): string => {
     padding: { top: 16, bottom: 16 },
     
     // Line settings
-    lineNumbers: "on",
+    lineNumbers: "on", // This should be fine - string enum values are valid
     lineHeight: 20,
     renderLineHighlight: "all",
     renderWhitespace: "selection",
@@ -309,13 +310,13 @@ export const getEditorLanguage = (fileExtension: string): string => {
     // Selection
     multiCursorModifier: "ctrlCmd",
     selectionHighlight: true,
-    occurrencesHighlight: true,
+    occurrencesHighlight: "singleFile",
     
     // Suggestions
     suggestOnTriggerCharacters: true,
     acceptSuggestionOnEnter: "on",
     tabCompletion: "on",
-    wordBasedSuggestions: true,
+    wordBasedSuggestions: "currentDocument",
     quickSuggestions: {
         other: true,
         comments: false,
@@ -346,7 +347,7 @@ export const getEditorLanguage = (fileExtension: string): string => {
     
     // Cursor
     cursorBlinking: "smooth",
-    cursorSmoothCaretAnimation: true,
+    cursorSmoothCaretAnimation: "on",
     cursorStyle: "line",
     cursorWidth: 2,
     
@@ -371,4 +372,5 @@ export const getEditorLanguage = (fileExtension: string): string => {
     stickyScroll: {
         enabled: true
     }
-};
+} as unknown as MonacoEditor.IStandaloneEditorConstructionOptions;
+

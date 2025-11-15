@@ -37,6 +37,9 @@ interface WebContainerPreviewProps {
   writeFileSync: (path: string, content: string) => Promise<void>;
   forceResetup?: boolean
 }
+
+
+
 const WebContainerPreview = ({
   templateData,
   serverUrl,
@@ -78,168 +81,141 @@ const WebContainerPreview = ({
                       }
       },[forceResetup]);
 
-    useEffect(() => 
-      {
-        async function setupWebContainer() {
-          // Don't setup if already complete or in progress
-          if (!instance || isSetupComplete || isSetupInProgress) return;
+    useEffect(() => {
+      async function setupWebContainer() {
+        // Don't setup if already complete or in progress
+        if (!instance || isSetupComplete || isSetupInProgress) return;
 
-          try {
-            setIsSetupInProgress(true);
-            setSetupError(null);
-            
+        try {
+          setIsSetupInProgress(true);
+          setSetupError(null);
             try {
-              if (forceResetup) {
-                // Clear any existing listeners
-                // Note: WebContainer doesn't have removeAllListeners, but we can handle this differently
-                console.log('Force resetup requested');
-              }
-              const packageJsonExists = await instance.fs.readFile('package.json').catch(() => null);
-              if (packageJsonExists) {
+              const packageJsonExists = await instance.fs.readFile('package.json')
+              if (packageJsonExists){
                 // implement here terminal related stuff
-                if (terminalRef.current?.writeToTerminal) {
-                  terminalRef.current.writeToTerminal('Reconnecting to existing WebContainer session...\r\n');
+                if(terminalRef.current?.write?.writeToTerminal){
+                  terminalRef.current.writeToTerminal('Reconnecting to existing WebContainer session...\r\n')
                 }
               }
+              instance.on('server-ready',(port:number, url:string) => {
+                console.log(`Reconnected to server on port ${port} at url ${url}`);
+                //terminal related stuff
+                if(terminalRef.current?.writeToTerminal){
+                  terminalRef.current.writeToTerminal(`Reconnected to server at ${url}\r\n`);
+                }
+                setPreviewUrl(url);
+                setLoadingState((prev) => ({ ...prev, starting: false , ready: true }));
+                setIsSetupComplete(true);
+                setIsSetupInProgress(false);
+              })
               
-              // Step 1: Transforming data
+            }catch(err){ }
+            // Step 1: Transforming data
+            setCurrentStep(4);
               setCurrentStep(1);
               setLoadingState((prev) => ({ ...prev, starting: true }));
-              
               // Terminal related stuff
-              if (terminalRef.current?.writeToTerminal) {
-                terminalRef.current.writeToTerminal('Transforming template data...\r\n');
-              }
-              
-              // Add null check for templateData
-              if (!templateData) {
-                throw new Error('Template data is not available');
+              if(terminalRef.current?.writeToTerminal){
+                terminalRef.current.writeToTerminal('Transforming template data...\r\n')
               }
               
               const files = transformToWebContainerFormat(templateData);
-              setLoadingState((prev) => ({ ...prev, transforming: false, mounting: true }));
+              setLoadingState((prev) => ({ ...prev, transforming:false ,mounting: true }));
               setCurrentStep(2);
-              
               // terminal related stuff
-              if (terminalRef.current?.writeToTerminal) {
-                terminalRef.current.writeToTerminal('Mounting files to WebContainer...\r\n');
+              if(terminalRef.current?.writeToTerminal){
+                terminalRef.current.writeToTerminal('Mounting files to WebContainer...\r\n')
               }
-              
-              // Add proper dimensions handling
-              if (instance && typeof instance.mount === 'function') {
-                await instance.mount(files);
-              } else {
-                // Fallback for dimension issues
-                console.warn('Mount method not available, using alternative approach');
-                // You might want to implement a different mounting strategy here
-              }
-              
-              setLoadingState((prev) => ({
+              await instance.mount(files);
+              setLoadingState((prev)=>({
                 ...prev,
                 mounting: false,
                 installing: true,
               }));
+              // Mount files
+              setLoadingState((prev) => ({ ...prev, mounting: false , installing: true }));
               setCurrentStep(3);
-              
               // terminal stuff
-              if (terminalRef.current?.writeToTerminal) {
-                terminalRef.current.writeToTerminal('Installing dependencies...\r\n');
+              if(terminalRef.current?.writeToTerminal){
+                terminalRef.current.writeToTerminal('Installing dependencies...\r\n')
               }
-              
-              const installProcess = await instance.spawn('npm', ['install']);
-              
-              if (installProcess && installProcess.output) {
-                installProcess.output.pipeTo(
-                  new WritableStream({
-                    write: (data) => {
-                      // write directly to terminal
-                      if (terminalRef.current?.writeToTerminal) {
-                        terminalRef.current.writeToTerminal(data);
-                      }
+
+              const installProcess = await instance.spawn('npm', ['install'])
+
+              installProcess.output.pipeTo(
+                new WritableStream({
+                  write(data){
+                    // write directly to terminal
+                    if(terminalRef?.current?.writeToTerminal){
+                      terminalRef.current.writeToTerminal(data);
                     }
-                  })
-                );
-              } else {
-                console.warn('Install process output not available');
+                  }
+                })
+              );
+              const installExitCode = await installProcess.exit; 
+              if (installExitCode !==0) {
+                throw new Error(`Failed to install dependencies exit code :${installExitCode}`);
+                      }
+                // terminal stuff
+              if(terminalRef.current?.writeToTerminal){
+                terminalRef.current.writeToTerminal('Dependencies installed successfully\r\n')
               }
-              
-              const installExitCode = await installProcess.exit;
-              if (installExitCode !== 0) {
-                throw new Error(`Failed to install dependencies, exit code: ${installExitCode}`);
-              }
-              
-              // terminal stuff
-              if (terminalRef.current?.writeToTerminal) {
-                terminalRef.current.writeToTerminal('Dependencies installed successfully\r\n');
-              }
-              
-              setLoadingState((prev) => ({
+              setLoadingState((prev)=> ({
                 ...prev,
                 installing: false,
                 starting: true,
               }));
               setCurrentStep(4);
-              
-              const startProcess = await instance.spawn('npm', ['run', 'start']);
-              
+
+              const startProcess = await instance.spawn('npm',['run' ,'start'])
+
               // Listen for server ready event
-              instance.on("server-ready", (port: number, url: string) => {
+              instance.on("server-ready",(port: number, url:string)=> {
                 console.log(`Server ready on port ${port} at ${url}`);
                 // Terminal stuff
-                if (terminalRef.current?.writeToTerminal) {
-                  terminalRef.current.writeToTerminal(`Server ready at ${url}\r\n`);
-                }
+              if(terminalRef.current?.writeToTerminal){
+                terminalRef.current.writeToTerminal(`server ready at $${url}\r\n`);
+              }
                 setPreviewUrl(url);
-                setLoadingState((prev) => ({
+                setLoadingState((prev)=>({
                   ...prev,
-                  starting: false,
-                  ready: true,
+                  starting:false,
+                  ready:true,
                 }));
                 setIsSetupComplete(true);
                 setIsSetupInProgress(false);
               });
-              
+
               // Handle start process output - stream to terminal
-              if (startProcess && startProcess.output) {
-                startProcess.output.pipeTo(
-                  new WritableStream({
-                    write: (data) => {
-                      if (terminalRef.current?.writeToTerminal) {
-                        terminalRef.current.writeToTerminal(data);
-                      }
-                    }
-                  })
-                );
-              } else {
-                console.warn('Start process output not available');
+              startProcess.output.pipeTo(
+                new WritableStream({
+                  write(data){
+                    if(terminalRef.current?.writeToTerminal){
+                terminalRef.current.writeToTerminal(data)
               }
-              
-            } catch (err) {
-              console.error('Error checking existing session:', err);
-            }
-            
-          } catch (err) {
-            console.error('Error setting up container:', err);
-            const errorMessage = err instanceof Error ? err.message : String(err);
-            
-            if (terminalRef.current?.writeToTerminal) {
-              terminalRef.current.writeToTerminal(`Error: ${errorMessage}\r\n`);
-            }
-            
-            setSetupError(new Error(errorMessage));
-            setIsSetupInProgress(false);
-            setLoadingState({
-              transforming: false,
-              mounting: false,
-              installing: false,
-              starting: false,
-              ready: false,
-            });
-          }
+                  },
+                })
+              )
+
+        } catch (err) {
+          console.error('Error setting up container:' , err)
+          const errorMessage = err instanceof Error? err.message : String(err);
+          if(terminalRef.current?.writeToTerminal){
+                terminalRef.current.writeToTerminal(`Error:${errorMessage}\r\n`);
+              }
+          setSetupError(new Error(errorMessage));
+          setIsSetupInProgress(false);
+          setLoadingState({
+            transforming: false,
+            mounting: false,
+            installing:false,
+            starting: false,
+            ready: false,
+          });
         }
+      }
       setupWebContainer()
-    },
-    [instance, templateData, isSetupComplete, isSetupInProgress])
+    },[instance, templateData, isSetupComplete, isSetupInProgress])
     // cleanup function to prevent memory leaks
     useEffect(()=>{
       return ()=> {
