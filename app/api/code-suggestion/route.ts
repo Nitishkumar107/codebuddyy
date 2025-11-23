@@ -1,18 +1,18 @@
 import { error } from "console";
 import { Columns } from "lucide-react";
 import { Content } from "next/font/google";
-import {type NextRequest ,NextResponse} from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { property, string } from "zod";
 
 
 
 
-interface CodeSuggestionRequest{
-    fileContent:string;
-    cursorLine:number;
-    cursorColumn:number;
-    suggestionType:string;
-    fileName?:string
+interface CodeSuggestionRequest {
+    fileContent: string;
+    cursorLine: number;
+    cursorColumn: number;
+    suggestionType: string;
+    fileName?: string
 }
 /** 
 interface CodeContext{
@@ -28,17 +28,17 @@ interface CodeContext{
     incompletePatterns: string[]
 }
 */
-export async function POST (request:NextRequest){
+export async function POST(request: NextRequest) {
     {
-        try{
-            const body:CodeSuggestionRequest = await request.json()
-            const {fileContent, cursorColumn, cursorLine, suggestionType, fileName}= body;
+        try {
+            const body: CodeSuggestionRequest = await request.json()
+            const { fileContent, cursorColumn, cursorLine, suggestionType, fileName } = body;
             //validate input
-            if (!fileContent || cursorLine < 0 || cursorColumn < 0 || !suggestionType){
-                return NextResponse.json({error: "Invalid input parameters"}, {status: 400})
+            if (!fileContent || cursorLine < 0 || cursorColumn < 0 || !suggestionType) {
+                return NextResponse.json({ error: "Invalid input parameters" }, { status: 400 })
             }
             //  analyze the context
-            const context = analyzeCodeContext (fileContent, cursorLine, cursorColumn, fileName)
+            const context = analyzeCodeContext(fileContent, cursorLine, cursorColumn, fileName)
 
             // Build ai prompt
             const prompt = buildPrompt(context, suggestionType)
@@ -49,7 +49,7 @@ export async function POST (request:NextRequest){
             return NextResponse.json({
                 suggestion,
                 context,
-                metadata:{
+                metadata: {
                     language: context.language,
                     framework: context.framework,
                     position: context.cursorPosition,
@@ -58,9 +58,9 @@ export async function POST (request:NextRequest){
             })
 
         }
-        catch (error:any){
+        catch (error: any) {
             console.error("Context analysis error: ", error)
-            return NextResponse.json({error: "Internal server error", message: error.message}, {status: 500})
+            return NextResponse.json({ error: "Internal server error", message: error.message }, { status: 500 })
         }
     }
 }
@@ -96,10 +96,10 @@ function analyzeCodeContext(content: string, line: number, column: number, fileN
         afterContext,
         cursorPosition: { line, column },
         isInFunction,
-        isInClass, 
+        isInClass,
         isAfterComment,
         incompletePatterns
-        
+
     }
 }
 
@@ -112,7 +112,7 @@ function analyzeCodeContext(content: string, line: number, column: number, fileN
  * @returns Formatted prompt string for the code completion assistant
  */
 function buildPrompt(context: CodeContext, suggestionType: string): string {
-  // Validate input
+    // Validate input
     if (!context || !context.language) {
         throw new Error('Invalid context provided to buildPrompt');
     }
@@ -120,11 +120,11 @@ function buildPrompt(context: CodeContext, suggestionType: string): string {
     // Extract and format cursor position information
     const cursorLine = context.currentLine || '';
     const cursorPosition = context.cursorPosition || { column: 0 };
-    
+
     // Split current line at cursor position
     const beforeCursor = cursorLine.substring(0, cursorPosition.column);
     const afterCursor = cursorLine.substring(cursorPosition.column);
-    
+
     // Format incomplete patterns for display
     const incompletePatterns = context.incompletePatterns && context.incompletePatterns.length > 0
         ? context.incompletePatterns.join(", ")
@@ -183,17 +183,17 @@ interface CodeContext {
      * Programming language of the current file
      */
     language: string;
-    
+
     /**
      * Framework or library being used (e.g., React, Angular, Node.js)
      */
     framework?: string;
-    
+
     /**
      * The current line of code where cursor is positioned
      */
     currentLine: string;
-    
+
     /**
      * Cursor position information
      */
@@ -204,37 +204,37 @@ interface CodeContext {
         line: number;
         column: number;
     };
-    
+
     /**
      * Text before the cursor in the current line
      */
     beforeContext: string;
-    
+
     /**
      * Text after the cursor in the current line
      */
     afterContext: string;
-    
+
     /**
      * Whether cursor is inside a function
      */
     isInFunction: boolean;
-    
+
     /**
      * Whether cursor is inside a class
      */
     isInClass: boolean;
-    
+
     /**
      * Whether cursor is positioned after a comment
      */
     isAfterComment: boolean;
-    
+
     /**
      * Array of incomplete code patterns detected
      */
     incompletePatterns: string[];
-    
+
     /**
      * Additional context information
      */
@@ -250,99 +250,124 @@ async function generateSuggestion(prompt: string): Promise<string> {
     try {
         // Validate input
         if (!prompt || typeof prompt !== 'string') {
-        throw new Error('Invalid prompt provided to generateSuggestion');
+            throw new Error('Invalid prompt provided to generateSuggestion');
         }
 
         const response = await fetch("http://localhost:11434/api/generate", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            model: "quen3-coder:30b",
-            prompt,
-            stream: false, // Changed to false for simplicity, or keep true if streaming is needed
-            options: {
-            temperature: 0.7,
-            max_tokens: 300 // Fixed typo: was "max_token"
-            }
-        })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "qwen3-coder:30b",
+                prompt,
+                stream: false, // Changed to false for simplicity, or keep true if streaming is needed
+                options: {
+                    temperature: 0.7,
+                    max_tokens: 300 // Fixed typo: was "max_token"
+                }
+            })
         });
 
         // Check if response is ok
         if (!response.ok) {
-        throw new Error(`AI service error: ${response.statusText} (Status: ${response.status})`);
+            throw new Error(`AI service error: ${response.statusText} (Status: ${response.status})`);
         }
 
         const data = await response.json();
-        
+
         // Handle empty response
         if (!data || !data.response) {
-        throw new Error('AI service returned empty response');
+            throw new Error('AI service returned empty response');
         }
 
         let suggestion = data.response;
 
         // Clean up the suggestion
         if (suggestion.includes("```")) {
-        const codeMatch = suggestion.match(/```[\w]*\n?([\s\S]*?)```/);
-        suggestion = codeMatch ? codeMatch[1].trim() : suggestion;
+            const codeMatch = suggestion.match(/```[\w]*\n?([\s\S]*?)```/);
+            suggestion = codeMatch ? codeMatch[1].trim() : suggestion;
         }
-        
+
         // Remove cursor marker
         suggestion = suggestion.replace(/\|CURSOR\|/g, "").trim();
-        
+
+        // Remove duplicate lines (common AI issue)
+        const lines = suggestion.split('\n');
+        const uniqueLines: string[] = [];
+        const seenLines = new Set<string>();
+
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            // Only add if we haven't seen this exact line before
+            if (!seenLines.has(trimmedLine) || trimmedLine === '' || trimmedLine === '{' || trimmedLine === '}') {
+                uniqueLines.push(line);
+                seenLines.add(trimmedLine);
+            }
+        }
+
+        suggestion = uniqueLines.join('\n').trim();
+
+        // Remove any explanatory text before or after code
+        // Remove lines that start with "Here", "This", "The", etc (explanations)
+        const codeLines = suggestion.split('\n').filter((line: string) => {
+            const trimmed = line.trim();
+            return !trimmed.match(/^(Here|This|The|I|You|Note|Remember|Please|Let|We)\s/i);
+        });
+
+        suggestion = codeLines.join('\n').trim();
+
         // Additional cleanup for edge cases
         if (!suggestion) {
-        throw new Error('Generated suggestion is empty');
+            throw new Error('Generated suggestion is empty');
         }
 
         return suggestion;
     } catch (error: any) {
         console.error("AI generation error:", error);
-        
+
         // Return a safe fallback
         if (error instanceof Error) {
-        console.error("Error details:", error.message);
+            console.error("Error details:", error.message);
         }
-        
+
         return "// AI suggestion unavailable";
     }
-    }
+}
 
-    /**
-     * Alternative implementation with streaming support (if needed)
-     */
-    async function generateSuggestionStreaming(prompt: string): Promise<string> {
+/**
+ * Alternative implementation with streaming support (if needed)
+ */
+async function generateSuggestionStreaming(prompt: string): Promise<string> {
     try {
         if (!prompt || typeof prompt !== 'string') {
-        throw new Error('Invalid prompt provided to generateSuggestion');
+            throw new Error('Invalid prompt provided to generateSuggestion');
         }
 
         const response = await fetch("http://localhost:11434/api/generate", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            model: "quen3-coder:30b",
-            prompt,
-            stream: true, // Enable streaming if your backend supports it
-            options: {
-            temperature: 0.7,
-            max_tokens: 300
-            }
-        })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "qwen3-coder:30b",
+                prompt,
+                stream: true, // Enable streaming if your backend supports it
+                options: {
+                    temperature: 0.7,
+                    max_tokens: 300
+                }
+            })
         });
 
         if (!response.ok) {
-        throw new Error(`AI service error: ${response.statusText} (Status: ${response.status})`);
+            throw new Error(`AI service error: ${response.statusText} (Status: ${response.status})`);
         }
 
         // Handle streaming response if needed
         const reader = response.body?.getReader();
         if (!reader) {
-        throw new Error('Failed to get response stream reader');
+            throw new Error('Failed to get response stream reader');
         }
 
         let fullResponse = '';
@@ -350,11 +375,11 @@ async function generateSuggestion(prompt: string): Promise<string> {
 
         // Read the stream
         while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        fullResponse += chunk;
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            fullResponse += chunk;
         }
 
         // Parse the JSON response
@@ -363,20 +388,20 @@ async function generateSuggestion(prompt: string): Promise<string> {
 
         // Clean up the suggestion
         if (suggestion.includes("```")) {
-        const codeMatch = suggestion.match(/```[\w]*\n?([\s\S]*?)```/);
-        suggestion = codeMatch ? codeMatch[1].trim() : suggestion;
+            const codeMatch = suggestion.match(/```[\w]*\n?([\s\S]*?)```/);
+            suggestion = codeMatch ? codeMatch[1].trim() : suggestion;
         }
-        
+
         suggestion = suggestion.replace(/\|CURSOR\|/g, "").trim();
-        
+
         return suggestion;
     } catch (error: any) {
         console.error("AI generation error:", error);
-        
+
         if (error instanceof Error) {
-        console.error("Error details:", error.message);
+            console.error("Error details:", error.message);
         }
-        
+
         return "// AI suggestion unavailable";
     }
 }
@@ -384,264 +409,263 @@ async function generateSuggestion(prompt: string): Promise<string> {
 
 const detectLanguage = (content: string): string => {
     if (!content) return "LanguageFind";
-    
+
     // Trim content to avoid issues with whitespace
     const trimmedContent = content.trim();
-    
+
     // TypeScript detection
-    if (trimmedContent.includes("interface") || 
-        trimmedContent.includes("typescript") || 
+    if (trimmedContent.includes("interface") ||
+        trimmedContent.includes("typescript") ||
         trimmedContent.includes(".ts") ||
-        trimmedContent.includes("import") || 
+        trimmedContent.includes("import") ||
         trimmedContent.includes("export")) {
         return "TypeScript";
     }
-    
+
     // JavaScript detection
-    if (trimmedContent.includes("function") || 
-        trimmedContent.includes("const ") || 
-        trimmedContent.includes("let ") || 
+    if (trimmedContent.includes("function") ||
+        trimmedContent.includes("const ") ||
+        trimmedContent.includes("let ") ||
         trimmedContent.includes("var ") ||
         trimmedContent.includes("=>")) {
         return "JavaScript";
     }
-    
+
     // Python detection
-    if (trimmedContent.includes("def ") || 
-        trimmedContent.includes("import ") || 
+    if (trimmedContent.includes("def ") ||
+        trimmedContent.includes("import ") ||
         trimmedContent.includes("from ") ||
         trimmedContent.includes("print(")) {
         return "Python";
     }
-    
+
     // Go detection
-    if (trimmedContent.includes("func ") || 
+    if (trimmedContent.includes("func ") ||
         trimmedContent.includes("package ") ||
         trimmedContent.includes("import (")) {
         return "Go";
     }
-    
+
     // Java detection
-    if (trimmedContent.includes("public class") || 
+    if (trimmedContent.includes("public class") ||
         trimmedContent.includes("import java") ||
         trimmedContent.includes("public static void main")) {
         return "Java";
     }
-    
+
     // C++ detection
-    if (trimmedContent.includes("#include <iostream>") || 
+    if (trimmedContent.includes("#include <iostream>") ||
         trimmedContent.includes("std::cout") ||
         trimmedContent.includes("int main")) {
         return "C++";
     }
-    
+
     // C detection
-    if (trimmedContent.includes("#include <stdio.h>") || 
+    if (trimmedContent.includes("#include <stdio.h>") ||
         trimmedContent.includes("printf(") ||
         trimmedContent.includes("main()")) {
         return "C";
     }
-    
+
     // C# detection
-    if (trimmedContent.includes("namespace ") || 
+    if (trimmedContent.includes("namespace ") ||
         trimmedContent.includes("using System") ||
         trimmedContent.includes("class ")) {
         return "C#";
     }
-    
+
     // Ruby detection
-    if (trimmedContent.includes("def ") || 
+    if (trimmedContent.includes("def ") ||
         trimmedContent.includes(".each") ||
         trimmedContent.includes("puts ")) {
         return "Ruby";
     }
-    
+
     // PHP detection
-    if (trimmedContent.includes("<?php") || 
+    if (trimmedContent.includes("<?php") ||
         trimmedContent.includes("function ") ||
         trimmedContent.includes("$")) {
         return "PHP";
     }
-    
+
     // Rust detection
-    if (trimmedContent.includes("fn ") || 
+    if (trimmedContent.includes("fn ") ||
         trimmedContent.includes("let mut ") ||
         trimmedContent.includes("use ")) {
         return "Rust";
     }
-    
+
     // HTML detection
-    if (trimmedContent.includes("<html") || 
+    if (trimmedContent.includes("<html") ||
         trimmedContent.includes("<div") ||
         trimmedContent.includes("<span")) {
         return "HTML";
     }
-    
+
     // CSS detection
-    if (trimmedContent.includes(".class") || 
+    if (trimmedContent.includes(".class") ||
         trimmedContent.includes("{") && trimmedContent.includes("}")) {
         return "CSS";
     }
-    
+
     // SQL detection
-    if (trimmedContent.includes("SELECT") || 
+    if (trimmedContent.includes("SELECT") ||
         trimmedContent.includes("FROM") ||
         trimmedContent.includes("WHERE")) {
         return "SQL";
     }
-    
+
     return "LanguageFind";
 };
 
 function detectFramework(content: string): string {
     if (!content) return "frameWorkFind";
-    
+
     const trimmedContent = content.trim();
-    
+
     // React detection
-    if (trimmedContent.includes("import React") || 
-        trimmedContent.includes("useState") || 
+    if (trimmedContent.includes("import React") ||
+        trimmedContent.includes("useState") ||
         trimmedContent.includes("useEffect") ||
         trimmedContent.includes("import { useState") ||
         trimmedContent.includes("import { useEffect")) {
         return "React";
     }
-    
+
     // Next.js detection (React + Next.js specific)
-    if (trimmedContent.includes("import Next") || 
-        trimmedContent.includes("export default") || 
+    if (trimmedContent.includes("import Next") ||
+        trimmedContent.includes("export default") ||
         trimmedContent.includes("getServerSideProps") ||
         trimmedContent.includes("getStaticProps")) {
         return "Next.js";
     }
-    
+
     // Vue detection
-    if (trimmedContent.includes("import Vue") || 
+    if (trimmedContent.includes("import Vue") ||
         trimmedContent.includes("<template>") ||
-        trimmedContent.includes("export default") && 
+        trimmedContent.includes("export default") &&
         trimmedContent.includes("data:") ||
         trimmedContent.includes("methods:")) {
         return "Vue";
     }
-    
+
     // Angular detection
-    if (trimmedContent.includes("@Component") || 
+    if (trimmedContent.includes("@Component") ||
         trimmedContent.includes("import { Component") ||
-        trimmedContent.includes("constructor(") && 
+        trimmedContent.includes("constructor(") &&
         trimmedContent.includes("Inject")) {
         return "Angular";
     }
-    
+
     // Svelte detection
-    if (trimmedContent.includes("import { onMount") || 
+    if (trimmedContent.includes("import { onMount") ||
         trimmedContent.includes("$: ") ||
         trimmedContent.includes("<script>") ||
         trimmedContent.includes("export let ")) {
         return "Svelte";
     }
-    
+
     // JavaScript detection
-    if (trimmedContent.includes("function ") || 
-        trimmedContent.includes("const ") || 
-        trimmedContent.includes("let ") || 
+    if (trimmedContent.includes("function ") ||
+        trimmedContent.includes("const ") ||
+        trimmedContent.includes("let ") ||
         trimmedContent.includes("var ") ||
         trimmedContent.includes("=>") ||
         trimmedContent.includes("document.") ||
         trimmedContent.includes("window.")) {
         return "JavaScript";
     }
-    
+
     // Web Platform detection
-    if (trimmedContent.includes("fetch(") || 
+    if (trimmedContent.includes("fetch(") ||
         trimmedContent.includes("XMLHttpRequest") ||
         trimmedContent.includes("addEventListener") ||
         trimmedContent.includes("localStorage") ||
         trimmedContent.includes("sessionStorage")) {
         return "Web Platform";
     }
-    
+
     // GraphQL detection
-    if (trimmedContent.includes("gql`") || 
+    if (trimmedContent.includes("gql`") ||
         trimmedContent.includes("graphql") ||
         trimmedContent.includes("query ") ||
         trimmedContent.includes("mutation ")) {
         return "GraphQL";
     }
-    
+
     // Hono detection
-    if (trimmedContent.includes("import { Hono }") || 
+    if (trimmedContent.includes("import { Hono }") ||
         trimmedContent.includes("new Hono()") ||
         trimmedContent.includes("app.get(") ||
         trimmedContent.includes("app.post(")) {
         return "Hono";
     }
-    
+
     // ShadCN detection
-    if (trimmedContent.includes("import { Button") || 
+    if (trimmedContent.includes("import { Button") ||
         trimmedContent.includes("import { Card") ||
         trimmedContent.includes("import { Input") ||
         trimmedContent.includes("cn(") ||
         trimmedContent.includes("clsx(")) {
         return "ShadCN";
     }
-    
+
     // Node.js detection (for server-side JavaScript)
-    if (trimmedContent.includes("require(") || 
+    if (trimmedContent.includes("require(") ||
         trimmedContent.includes("module.exports") ||
         trimmedContent.includes("process.env")) {
         return "Node.js";
     }
-    
+
     // Express.js detection
-    if (trimmedContent.includes("app.get(") || 
+    if (trimmedContent.includes("app.get(") ||
         trimmedContent.includes("app.post(") ||
         trimmedContent.includes("express()")) {
         return "Express.js";
     }
-    
+
     // Tailwind CSS detection
-    if (trimmedContent.includes("class=") && 
+    if (trimmedContent.includes("class=") &&
         trimmedContent.includes("bg-") ||
         trimmedContent.includes("text-") ||
         trimmedContent.includes("p-") ||
         trimmedContent.includes("m-")) {
         return "Tailwind CSS";
     }
-    
+
     return "frameWorkFind";
 }
 
 
-function detectInFunction (Lines: string[], currentLine: number): boolean {
-    for (let i = currentLine-1; i >= 0; i--){
-        const line =Lines[i]
+function detectInFunction(Lines: string[], currentLine: number): boolean {
+    for (let i = currentLine - 1; i >= 0; i--) {
+        const line = Lines[i]
         if (line?.match(/^\s*(function|def|const\s+\w+\s*=|let\s+\w\s*=)/)) return true
-        if(line?.match(/^\s*}/)) break
+        if (line?.match(/^\s*}/)) break
     }
     return false
 }
 
 function detectInClass(Lines: string[], currentLine: number): boolean {
-    for (let i = currentLine - 1 ; i >= 0; i--)
-    {
+    for (let i = currentLine - 1; i >= 0; i--) {
         const line = Lines[i]
-        if (line?.match(/^\s*(class|interface)\s+/)) return true 
+        if (line?.match(/^\s*(class|interface)\s+/)) return true
     }
     return false
 }
 
 function detectAfterComment(line: string, column: number): boolean {
     if (!line || column < 0) return false;
-    
+
     const beforeCursor = line.substring(0, column);
-    
+
     // Check for both JavaScript/TypeScript style comments (//) and Python style comments (#)
     return /\/\//.test(beforeCursor) || /#/.test(beforeCursor);
-    }
+}
 
 function detectIncompletePatterns(line: string, column: number): string[] {
     if (!line || column < 0 || column > line.length) return [];
-    
+
     const beforeCursor = line.substring(0, column);
     const patterns: string[] = [];
 
@@ -761,12 +785,12 @@ function detectIncompletePatterns(line: string, column: number): string[] {
     }
 
     return patterns;
-    }
+}
 
 
-function getLastNonEmptyLine(Lines: string[], currentLine: number): string{
-    for (let i = currentLine -1; i>= 0; i--){
-        const line= Lines[i]
+function getLastNonEmptyLine(Lines: string[], currentLine: number): string {
+    for (let i = currentLine - 1; i >= 0; i--) {
+        const line = Lines[i]
         if (line.trim() !== "") return line
     }
     return ""

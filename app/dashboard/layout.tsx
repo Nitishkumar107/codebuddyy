@@ -1,11 +1,12 @@
 import React from "react";
-import DashboardSidebar  from '@/features/dashboard/actions/components/dashboard-sidebar';
+import DashboardSidebar from '@/features/dashboard/actions/components/dashboard-sidebar';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getAllPlaygroundForUser } from "@/features/dashboard";
-import { Zap, Lightbulb, Server, Code, Flame, Database, FileCode, Box, Braces, Terminal} from 'lucide-react';
+import { Zap, Lightbulb, Server, Code, Flame, Database, FileCode, Box, Braces, Terminal } from 'lucide-react';
 import { Playground } from "@prisma/client";
+import AiCoderPanel from '@/components/ai-coder/ai-coder-panel';
 
-export default async function DashboardLayout({children}:{children:React.ReactNode}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     const playgroundData = await getAllPlaygroundForUser();
     const technologyIconMap: Record<string, React.ComponentType> = {
         REACTJS: Zap,        // Lightning bolt
@@ -22,21 +23,22 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
         WebPlatform: Server, // Server for web platform
         // Note: NEXT is not in your templatePaths, so it's removed
     };
-    
+
     const formatedPlaygroundData = playgroundData?.map((playground) => ({
         id: playground.id,
         name: playground.title,
         starred: technologyIconMap[playground.template] || Code // fallback to Code icon
     })) || [];
 
-    return(
+    return (
         <SidebarProvider>
             <div className="flex min-h-screen w-full overflow-x-hidden" >
                 {/*todo: dashboardSidebar implement */}
-                <DashboardSidebar  initialPlaygroundData={[]} />
+                <DashboardSidebar initialPlaygroundData={[]} />
                 <main className="flex-1">
                     {children}
                 </main>
+                <AiCoderPanel />
             </div>
         </SidebarProvider>
     )
